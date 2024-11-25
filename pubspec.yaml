@@ -1,0 +1,19 @@
+name: bottom_sheet_search
+description: "A new Flutter package project."
+version: 0.0.1
+homepage: https://caddasia.studio
+
+environment:
+  sdk: ^3.5.4
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+
