@@ -76,6 +76,7 @@ class BottomSheetSearchWidget<T> extends StatefulWidget {
     this.filterOptions = const FilterOptions(),
     this.onFilterChanged,
     this.autoCompleteBuilder,
+    this.isMagnifyingGlassIconEnabled = true,
   });
 
   /// List of items to be displayed and searched through.
@@ -117,6 +118,9 @@ class BottomSheetSearchWidget<T> extends StatefulWidget {
   /// Optional builder for autocomplete suggestions
   final Widget Function(BuildContext context, T suggestion)?
       autoCompleteBuilder;
+
+  /// Whether the magnifying glass icon should be displayed in the search bar.
+  final bool isMagnifyingGlassIconEnabled;
 
   @override
   State<BottomSheetSearchWidget<T>> createState() =>
@@ -191,7 +195,7 @@ class _BottomSheetSearchWidgetState<T>
     const defaultBorderWidth = 1.0;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 1),
+      margin: const EdgeInsets.symmetric(horizontal: 1.5),
       decoration: BoxDecoration(
         border: Border.all(
           color: widget.decoration.borderColor ?? defaultBorderColor,
@@ -213,7 +217,7 @@ class _BottomSheetSearchWidgetState<T>
           children: [
             Padding(
               padding:
-                  widget.decoration.contentPadding ?? const EdgeInsets.all(18),
+                  widget.decoration.contentPadding ?? const EdgeInsets.all(12),
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -222,7 +226,7 @@ class _BottomSheetSearchWidgetState<T>
                     width: widget.decoration.borderWidth ?? 0.25,
                   ),
                   color: widget.decoration.searchBarColor ??
-                      Colors.white.withOpacity(.18),
+                      Colors.white.withOpacity(.079),
                   borderRadius: widget.decoration.searchBarBorderRadius ??
                       BorderRadius.circular(32),
                 ),
@@ -247,24 +251,33 @@ class _BottomSheetSearchWidgetState<T>
                       border: InputBorder.none,
                       contentPadding: widget.decoration.searchBarPadding ??
                           const EdgeInsets.symmetric(
-                            horizontal: 16,
+                            horizontal: 32,
                             vertical: 12,
                           ),
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: widget.suffixIcons ??
-                            [
-                              IconButton(
-                                icon: Icon(
-                                  Icons.mic_outlined,
-                                  color: Colors.grey[400],
+                      suffixIcon:
+                          ((widget.searchController ?? _searchController)
+                                  .text
+                                  .isNotEmpty)
+                              ? IconButton(
+                                  onPressed: () {
+                                    (_searchController).clear();
+                                  },
+                                  icon: const Icon(Icons.cancel),
+                                  color: Colors.white.withOpacity(.5),
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: widget.suffixIcons ??
+                                      [
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.mic_outlined,
+                                            color: Colors.grey[400],
+                                          ),
+                                          onPressed: () {},
+                                        ),
+                                      ],
                                 ),
-                                onPressed: () {
-                                  // TODO: Implement voice search
-                                },
-                              ),
-                            ],
-                      ),
                     ),
                   ),
                 ),
@@ -277,7 +290,7 @@ class _BottomSheetSearchWidgetState<T>
               Container(
                 constraints: const BoxConstraints(maxHeight: 200),
                 child: ListView.builder(
-                  shrinkWrap: true,
+                  shrinkWrap: false,
                   itemCount: _autoCompleteSuggestions.length,
                   itemBuilder: (context, index) {
                     final suggestion = _autoCompleteSuggestions[index];
@@ -304,7 +317,20 @@ class _BottomSheetSearchWidgetState<T>
                     button: true,
                     child: InkWell(
                       onTap: () => widget.onItemSelected(item),
-                      child: widget.itemBuilder(context, item),
+                      child: Row(
+                        children: [
+                          if (widget.isMagnifyingGlassIconEnabled)
+                            SizedBox(
+                                width: 25,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Icon(Icons.search,
+                                      color: Colors.grey[400]),
+                                )),
+                          Expanded(child: widget.itemBuilder(context, item)),
+                        ],
+                      ),
                     ),
                   );
                 },

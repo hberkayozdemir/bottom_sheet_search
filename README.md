@@ -1,6 +1,6 @@
 # Bottom Sheet Search
 
-![Bottom Sheet Search Demo](https://github.com/hberkayozdemir/bottom_sheet_search/raw/main/assets/bottom_sheet.gif)
+![Bottom Sheet Search Demo](https://github.com/hberkayozdemir/bottom_sheet_search/raw/main/assets/bottom_sheet_2.gif)
 
 ## Table of Contents
 
