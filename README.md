@@ -283,7 +283,7 @@ Contributions are welcome! To contribute to **Bottom Sheet Search**, please foll
 2. **Clone Your Fork**:
 
    ```bash
-   git clone https://github.com/your-username/bottom_sheet_search.git
+   git clone https://github.com/hberkayozdemir/bottom_sheet_search.git
    ```
 
 3. **Create a New Branch** for your feature or bugfix:
