@@ -1,6 +1,6 @@
 name: bottom_sheet_search
 description: "A bottom sheet search widget for flutter"
-version: 0.0.5
+version: 1.0.0
 homepage: https://github.com/hberkayozdemir/bottom_sheet_search
 repository: https://github.com/hberkayozdemir/bottom_sheet_search
 environment:
