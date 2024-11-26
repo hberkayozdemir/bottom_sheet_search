@@ -57,7 +57,8 @@ void main() {
       }
     });
 
-    testWidgets('filters items based on search text', (WidgetTester tester) async {
+    testWidgets('filters items based on search text',
+        (WidgetTester tester) async {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pumpAndSettle();
 
@@ -147,6 +148,18 @@ void main() {
       expect(find.text('Item 1'), findsOneWidget);
       expect(find.text('Item 2'), findsOneWidget);
       expect(find.text('Different 3'), findsNothing);
+    });
+
+    testWidgets('displays autocomplete suggestions',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Item');
+      await tester.pumpAndSettle();
+
+      expect(
+          find.byType(ListTile), findsNWidgets(2)); // Expecting 2 suggestions
     });
   });
 }
