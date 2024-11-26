@@ -1,8 +1,8 @@
 name: bottom_sheet_search
-description: "A new Flutter package project."
-version: 0.0.1
-homepage: https://caddasia.studio
-
+description: "A bottom sheet search widget for flutter"
+version: 0.0.4
+homepage: https://github.com/hberkayozdemir/bottom_sheet_search
+repository: https://github.com/hberkayozdemir/bottom_sheet_search
 environment:
   sdk: ^3.5.4
   flutter: ">=1.17.0"

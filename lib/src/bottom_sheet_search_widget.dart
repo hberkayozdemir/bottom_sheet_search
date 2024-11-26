@@ -1,143 +1,186 @@
+import 'package:bottom_sheet_search/bottom_sheet_search.dart';
 import 'package:flutter/material.dart';
 
-import 'list_item.dart';
-
-/*
-BottomSheetSearchWidget(
-   Essential
-  items: listItems,
-  onItemSelected: (item) => handleSelection(item),
-  
-   Text Customization
-  searchHint: 'Custom search hint...',
-  searchTextStyle: TextStyle(color: Colors.blue, fontSize: 16),
-  hintTextStyle: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-  itemTextStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-  
-   Colors
-  backgroundColor: Colors.white,
-  searchBarColor: Colors.grey[200],
-  borderColor: Colors.blue,
-  cursorColor: Colors.blue,
-  
-   Layout
-  borderRadius: BorderRadius.only(
-    topLeft: Radius.circular(20),
-    topRight: Radius.circular(20),
-  ),
-  searchBarBorderRadius: BorderRadius.only(
-    topLeft: Radius.circular(15),
-    topRight: Radius.circular(15),
-  ),
-  contentPadding: EdgeInsets.all(16),
-  searchBarPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-  borderWidth: 0.5,
-  
-  suffixIcons: [
-    IconButton(
-      icon: Icon(Icons.mic),
-      onPressed: () => handleVoiceSearch(),
-    ),
-    IconButton(
-      icon: Icon(Icons.filter_list),
-      onPressed: () => handleFilter(),
-    ),
-  ],
-) */
-
-/// A search component that displays a bottom sheet with search functionality
-class BottomSheetSearchWidget extends StatefulWidget {
+/// A search component that displays a bottom sheet with search functionality and autocomplete.
+///
+/// This widget provides a customizable search interface within a bottom sheet that includes:
+/// * A search bar with customizable styling and suffix icons
+/// * A scrollable list of widgets that can be filtered based on search text
+/// * Customizable decorations and themes
+///
+/// Example usage:
+/// ```dart
+///BottomSheetSearchWidget<User>(           items: userProvider.users,
+///            searchableText: (user) => user.name,
+///            onItemSelected: (user) => _handleUserSelection(context, user),
+///            itemBuilder: (context, user) {
+///              return ListTile(
+///                title: Text(user.name),
+///                subtitle: Text(user.email),
+///              );
+///            },
+///            decoration: BottomSheetDecoration(
+///              backgroundColor = Colors.white,
+///              searchBarColor = Colors.grey[200],
+///              borderRadius = const BorderRadius.only(
+///                topLeft: Radius.circular(24),
+///                topRight: Radius.circular(24),
+///              ),
+///            ),
+///            suffixIcons: [
+///              IconButton(
+///                icon = const Icon(Icons.filter_list),
+///                onPressed = () {
+///  //Implement filter functionality here.
+///                },
+///              ),
+///            ],BottomSheetSearchWidget<User>(
+///            items: userProvider.users,
+///            searchableText: (user) => user.name,
+///            onItemSelected: (user) => _handleUserSelection(context, user),
+///            itemBuilder: (context, user) {
+///              return ListTile(
+///                title: Text(user.name),
+///                subtitle: Text(user.email),
+///              );
+///            },
+///            decoration: const BottomSheetDecoration(
+///              backgroundColor: Colors.white,
+///              searchBarColor: Colors.grey[200],
+///              borderRadius: BorderRadius.only(
+///                topLeft: Radius.circular(24),
+///                topRight: Radius.circular(24),
+///              ),
+///            ),
+///            suffixIcons: [
+///              IconButton(
+///                icon: const Icon(Icons.filter_list),
+///                onPressed: () {
+///  //Implement filter functionality here.
+///                },
+///         ),
+///    ],
+/// ```
+class BottomSheetSearchWidget<T> extends StatefulWidget {
   /// Creates a bottom sheet search component
   const BottomSheetSearchWidget({
     super.key,
     required this.items,
+    required this.searchableText,
     required this.onItemSelected,
+    required this.itemBuilder,
     this.searchHint = 'Search...',
-    this.backgroundColor,
-    this.searchBarColor,
-    this.borderColor,
-    this.searchTextStyle,
-    this.hintTextStyle,
-    this.itemTextStyle,
-    this.borderRadius,
-    this.searchBarBorderRadius,
-    this.contentPadding,
-    this.searchBarPadding,
-    this.cursorColor,
-    this.borderWidth = .25,
+    this.decoration = const BottomSheetDecoration(),
     this.suffixIcons,
+    this.searchController,
+    this.filterOptions = const FilterOptions(),
+    this.onFilterChanged,
+    this.autoCompleteBuilder,
   });
 
-  /// List of items to be displayed and searched
-  final List<ListItem> items;
+  /// List of items to be displayed and searched through.
+  final List<T> items;
 
-  /// Callback when an item is selected
-  final void Function(ListItem item) onItemSelected;
+  /// Function that returns the searchable text for each item.
+  /// This text will be used for filtering the items.
+  final String Function(T item) searchableText;
 
-  /// Hint text for the search field (defaults to 'Search...')
+  /// Callback function that is triggered when an item is selected from the list.
+  /// Returns the selected item of type T.
+  final void Function(T item) onItemSelected;
+
+  /// Builder function that returns a widget for each item
+  final Widget Function(BuildContext context, T item) itemBuilder;
+
+  /// The placeholder text shown in the search field when it's empty.
+  /// Defaults to 'Search...'.
   final String searchHint;
 
-  /// Background color of the bottom sheet (defaults to Color(0xff2C2B33).withOpacity(.9))
-  final Color? backgroundColor;
+  /// Decoration configuration for customizing the appearance of the bottom sheet.
+  /// See [BottomSheetDecoration] for available customization options.
+  final BottomSheetDecoration decoration;
 
-  /// Color of the search bar (defaults to Colors.white.withOpacity(.10))
-  final Color? searchBarColor;
-
-  /// Color of the borders (defaults to Colors.white.withOpacity(.2))
-  final Color? borderColor;
-
-  /// Color of the cursor (defaults to Colors.white)
-  final Color? cursorColor;
-
-  /// Text style for search input (defaults to white color)
-  final TextStyle? searchTextStyle;
-
-  /// Text style for hint text (defaults to white color with 0.6 opacity)
-  final TextStyle? hintTextStyle;
-
-  /// Text style for list items (defaults to white color)
-  final TextStyle? itemTextStyle;
-
-  /// Border radius for bottom sheet (defaults to 32)
-  final BorderRadius? borderRadius;
-
-  /// Border radius for search bar (defaults to 32)
-  final BorderRadius? searchBarBorderRadius;
-
-  /// Padding for the content (defaults to 18)
-  final EdgeInsets? contentPadding;
-
-  /// Padding for search bar (defaults to horizontal: 16, vertical: 12)
-  final EdgeInsets? searchBarPadding;
-
-  /// Border width (defaults to 0.35)
-  final double? borderWidth;
-
-  /// Custom suffix icons for search bar
+  /// Optional list of widgets to be displayed as suffix icons in the search bar.
+  /// Commonly used for adding functionality like voice search or filters.
   final List<Widget>? suffixIcons;
 
+  /// Optional TextEditingController for the search field.
+  /// If not provided, an internal controller will be created.
+  final TextEditingController? searchController;
+
+  /// Options for controlling the filtering behavior
+  final FilterOptions filterOptions;
+
+  /// Callback when filter options change
+  final void Function(FilterOptions)? onFilterChanged;
+
+  /// Optional builder for autocomplete suggestions
+  final Widget Function(BuildContext context, T suggestion)?
+      autoCompleteBuilder;
+
   @override
-  State<BottomSheetSearchWidget> createState() =>
-      _BottomSheetSearchWidgetState();
+  State<BottomSheetSearchWidget<T>> createState() =>
+      _BottomSheetSearchWidgetState<T>();
 }
 
-class _BottomSheetSearchWidgetState extends State<BottomSheetSearchWidget> {
-  final TextEditingController _searchController = TextEditingController();
-  List<ListItem> _filteredItems = [];
+/// State class for BottomSheetSearchWidget
+class _BottomSheetSearchWidgetState<T>
+    extends State<BottomSheetSearchWidget<T>> {
+  late final TextEditingController _searchController;
+  late List<T> _filteredItems;
+  late List<T> _autoCompleteSuggestions;
 
   @override
   void initState() {
     super.initState();
+    _searchController = widget.searchController ?? TextEditingController();
     _filteredItems = widget.items;
+    _autoCompleteSuggestions = [];
+    _searchController.addListener(_handleSearchChanged);
   }
 
-  void _onSearchChanged(String query) {
+  void _handleSearchChanged() {
+    final query = _searchController.text;
+    if (query.length < widget.filterOptions.minSearchLength) {
+      setState(() {
+        _filteredItems = widget.items;
+        _autoCompleteSuggestions = [];
+      });
+      return;
+    }
+
     setState(() {
-      _filteredItems = widget.items
-          .where(
-              (item) => item.title.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      _filteredItems = _filterItems(query);
+      _autoCompleteSuggestions = _generateAutoCompleteSuggestions(query);
     });
+  }
+
+  List<T> _filterItems(String query) {
+    if (query.isEmpty) return widget.items;
+
+    return widget.items.where((item) {
+      final searchText = widget.searchableText(item);
+      final searchQuery =
+          widget.filterOptions.caseSensitive ? query : query.toLowerCase();
+      final itemText = widget.filterOptions.caseSensitive
+          ? searchText
+          : searchText.toLowerCase();
+
+      switch (widget.filterOptions.matchType) {
+        case MatchType.contains:
+          return itemText.contains(searchQuery);
+        case MatchType.startsWith:
+          return itemText.startsWith(searchQuery);
+        case MatchType.exact:
+          return itemText == searchQuery;
+      }
+    }).toList();
+  }
+
+  List<T> _generateAutoCompleteSuggestions(String query) {
+    if (query.isEmpty || widget.autoCompleteBuilder == null) return [];
+
+    return _filteredItems.take(widget.filterOptions.maxSuggestions).toList();
   }
 
   @override
@@ -150,17 +193,18 @@ class _BottomSheetSearchWidgetState extends State<BottomSheetSearchWidget> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 1),
       decoration: BoxDecoration(
-          border: Border.all(
-            color: widget.borderColor ?? defaultBorderColor,
-            width: widget.borderWidth ?? defaultBorderWidth,
-          ),
-          color:
-              widget.backgroundColor ?? const Color(0xff2c2b33).withOpacity(.9),
-          borderRadius: widget.borderRadius ??
-              const BorderRadius.only(
-                topLeft: Radius.circular(32),
-                topRight: Radius.circular(32),
-              )),
+        border: Border.all(
+          color: widget.decoration.borderColor ?? defaultBorderColor,
+          width: widget.decoration.borderWidth ?? defaultBorderWidth,
+        ),
+        color: widget.decoration.backgroundColor ??
+            const Color(0xff2c2b33).withOpacity(.9),
+        borderRadius: widget.decoration.borderRadius ??
+            const BorderRadius.only(
+              topLeft: Radius.circular(32),
+              topRight: Radius.circular(32),
+            ),
+      ),
       child: Semantics(
         container: true,
         label: 'Search bottom sheet',
@@ -168,16 +212,19 @@ class _BottomSheetSearchWidgetState extends State<BottomSheetSearchWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: widget.contentPadding ?? const EdgeInsets.all(18),
+              padding:
+                  widget.decoration.contentPadding ?? const EdgeInsets.all(18),
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: widget.borderColor ?? Colors.grey.shade500,
-                    width: widget.borderWidth ?? 0.25,
+                    color:
+                        widget.decoration.borderColor ?? Colors.grey.shade500,
+                    width: widget.decoration.borderWidth ?? 0.25,
                   ),
-                  color: widget.searchBarColor ?? Colors.white.withOpacity(.18),
-                  borderRadius:
-                      widget.searchBarBorderRadius ?? BorderRadius.circular(32),
+                  color: widget.decoration.searchBarColor ??
+                      Colors.white.withOpacity(.18),
+                  borderRadius: widget.decoration.searchBarBorderRadius ??
+                      BorderRadius.circular(32),
                 ),
                 // Add semantic label for search field
                 child: Semantics(
@@ -185,19 +232,20 @@ class _BottomSheetSearchWidgetState extends State<BottomSheetSearchWidget> {
                   label: 'Search input field',
                   child: TextField(
                     controller: _searchController,
-                    onChanged: _onSearchChanged,
-                    cursorColor: widget.cursorColor ?? defaultTextColor,
-                    style: widget.searchTextStyle ??
+                    onChanged: (_) => _handleSearchChanged(),
+                    cursorColor:
+                        widget.decoration.cursorColor ?? defaultTextColor,
+                    style: widget.decoration.searchTextStyle ??
                         TextStyle(color: defaultTextColor),
                     decoration: InputDecoration(
                       hintText: widget.searchHint,
-                      hintStyle: widget.hintTextStyle ??
+                      hintStyle: widget.decoration.hintTextStyle ??
                           TextStyle(
                             color: defaultTextColor?.withOpacity(.6),
                             fontSize: 18,
                           ),
                       border: InputBorder.none,
-                      contentPadding: widget.searchBarPadding ??
+                      contentPadding: widget.decoration.searchBarPadding ??
                           const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 12,
@@ -222,28 +270,41 @@ class _BottomSheetSearchWidgetState extends State<BottomSheetSearchWidget> {
                 ),
               ),
             ),
+
+            // Auto-complete suggestions
+            if (_autoCompleteSuggestions.isNotEmpty &&
+                widget.autoCompleteBuilder != null)
+              Container(
+                constraints: const BoxConstraints(maxHeight: 200),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _autoCompleteSuggestions.length,
+                  itemBuilder: (context, index) {
+                    final suggestion = _autoCompleteSuggestions[index];
+                    return InkWell(
+                      onTap: () {
+                        _searchController.text =
+                            widget.searchableText(suggestion);
+                        widget.onItemSelected(suggestion);
+                      },
+                      child: widget.autoCompleteBuilder!(context, suggestion),
+                    );
+                  },
+                ),
+              ),
+
+            // Filtered items list
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: _filteredItems.length,
-                itemBuilder: (context, index) {
-                  final item = _filteredItems[index];
-                  // Add semantic labels for list items
+                itemBuilder: (BuildContext context, int index) {
+                  final T item = _filteredItems[index];
                   return Semantics(
                     button: true,
-                    label: 'Select ${item.title}',
-                    child: ListTile(
-                      leading: item.leading,
-                      title: Text(
-                        item.title,
-                        style: widget.itemTextStyle ??
-                            TextStyle(color: defaultTextColor),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: item.actions,
-                      ),
+                    child: InkWell(
                       onTap: () => widget.onItemSelected(item),
+                      child: widget.itemBuilder(context, item),
                     ),
                   );
                 },
@@ -257,7 +318,10 @@ class _BottomSheetSearchWidgetState extends State<BottomSheetSearchWidget> {
 
   @override
   void dispose() {
-    _searchController.dispose();
+    if (widget.searchController == null) {
+      _searchController.dispose();
+    }
+    _searchController.removeListener(_handleSearchChanged);
     super.dispose();
   }
 }
